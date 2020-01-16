@@ -60,6 +60,10 @@ usage:
 	monitor -V	print verbose/debug logging messages
 	monitor -v	print version number
 	monitor -d	restore to default behavior_preferences
+	monitor -i[nya]	install systemd service for autostart:
+				n - do not install (default)
+				y - install
+				a - ask
 	monitor -u	update 'monitor.service' to current command line settings
 			(excluding -u,-V, -F, and -d flags)
 
@@ -113,8 +117,9 @@ PREF_VERBOSE_LOGGING=false
 PREF_FILTER_DEBUG_LOGGING=false
 PREF_MQTT_SINGLE_TOPIC_MODE=false
 PREF_PERIODIC_MODE=false
+PREF_ASK_INSTALL_SERVICE=true
 
-while getopts "h?vfFbut:EgSRCmrsVadxD:c:" opt; do
+while getopts "h?vfFbut:EgSRCmrsVadxD:c:i:" opt; do
 	case "$opt" in
 		h|\?)
 			show_help_text
@@ -124,7 +129,8 @@ while getopts "h?vfFbut:EgSRCmrsVadxD:c:" opt; do
 			PREF_DISABLE_LOGGING=true && printf "%s\n" "> logging is disabled, although startup messages will still be shown"
 			;;
 
-		r)  PREF_PERIODIC_MODE=true 
+		r)
+			PREF_PERIODIC_MODE=true 
 			printf "%s\n" "> ${ORANGE}warning:${NC} periodic scan mode may cause interference with 2.4GHz networks if run on a Raspberry Pi"
 			;;
 		v)  
@@ -197,9 +203,26 @@ while getopts "h?vfFbut:EgSRCmrsVadxD:c:" opt; do
 			;;
 		a)  PREF_REPORT_ALL_MODE=true && $PREF_VERBOSE_LOGGING && printf "%s\n" "> report all scan results mode enabled"
 			;;
-        D)  PREF_CONFIG_DIR=$OPTARG && printf "%s\n" "> using custom config directory [$PREF_CONFIG_DIR]"
-            [ ! -d "$PREF_CONFIG_DIR" ] && printf "%s\n" "> ${RED}error: ${NC}config directory [$PREF_CONFIG_DIR] doesn't exist" && exit 1
-                ;;
+	        D)  PREF_CONFIG_DIR=$OPTARG && printf "%s\n" "> using custom config directory [$PREF_CONFIG_DIR]"
+        	    [ ! -d "$PREF_CONFIG_DIR" ] && printf "%s\n" "> ${RED}error: ${NC}config directory [$PREF_CONFIG_DIR] doesn't exist" && exit 1
+                	;;
+		i)
+			# shall we install service file
+			case "$OPTARG" in
+				y)
+					should_ask='y'
+					;;
+				n)
+					should_ask='n'
+					;;
+				a)
+					should_ask='a'
+					;;
+				*)
+					printf "%s\n" "> ${ORANGE}warning: ${NC}unknown installation option: $OPTARG"
+					;;
+			esac
+			;;
 		*)	printf "%s\n" "> unknown or depreciated argument: $opt"
 	esac
 done

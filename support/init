@@ -43,7 +43,15 @@ should_exit=false
 [ -z "$hcidump_path" ] && printf "%s\n" ">${RED} error:${NC} required package 'hcidump' not found. please install 'bluez-hcidump' (e.g., sudo apt-get install bluez-hcidump)." && should_exit=true
 [ -z "$bc_path" ] && printf "%s\n" ">${RED} error:${NC} required package 'bc' not found. please install 'bc' (e.g., apt-get install bc)" && should_exit=true
 [ -z "$git_path" ] && printf "%s\n" "${ORANGE}> warning:${NC} Recommended package 'git' not found. please consider installing for regular updates."
-[ ! -f /.dockerenv  ] && [ ! -z "$(which systemctl)" ] && [ ! -e "$service_path" ] && printf "%s\n" "${ORANGE}> warning:${NC} monitor.service not installed. Install service? (y/n)" && read should_install
+if [ ! -f /.dockerenv  ] && [ ! -z "$(which systemctl)" ] && [ ! -e "$service_path" ] && [ ! -z $should_ask ] ; then
+	if [ "x$should_ask" == "xa" ] ; then
+		printf "%s\n" "${ORANGE}> warning:${NC} monitor.service not installed. Install service? (y/n)" && read should_install
+	else
+		should_install=${should_ask}
+	fi
+else
+	should_install='n'
+fi
 
 #BASH VERSION 4.4+
 [[ ! ${BASH_VERSION//[^0-9.]/} =~ ^(4.[4-9]{1,}.?|^[5-9].?) ]] && printf "%s\n" ">${ORANGE} warning:${NC} recommended minimum bash version 4.4+ not found. please consider updating."
@@ -207,7 +215,7 @@ fi
 # ----------------------------------------------------------------------------------------
 
 #FILTER THE ARGV FROM THE PARENT SCRIPT TO REMOVE ONE-TIME USE VARIABLES
-FILTERED_ARGS=$(printf '%s\n' "$(IFS=' '; echo "${RUNTIME_ARGS[*]}")" | sed 's/ \?-d//gi;s/ \?-V//gi;s/ \?-F//gi;s/ \?-u//gi;s/&//g;s/  */ /gi')
+FILTERED_ARGS=$(printf '%s\n' "$(IFS=' '; echo "${RUNTIME_ARGS[*]}")" | sed 's/ \?-d//gi;s/ \?-V//gi;s/ \?-F//gi;s/ \?-u//gi;s/&//g;s/ \?-i.//gi;s/  */ /gi')
 
 #CHECK FOR CORRECT SERVICE; 
 if [ "$should_install" == "y" ] || [ "$PREF_UPDATE_SERVICE" == true ] ; then
