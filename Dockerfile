@@ -1,5 +1,10 @@
 FROM eclipse-mosquitto:1.6.9
 
+RUN apk --no-cache add --virtual build-deps \
+	git && \
+	git clone --depth=1 https://github.com/zeridon/monitor.git /opt/monitor && \
+	apk del build-deps
+
 RUN apk add --no-cache \
     	bash \
 	bc \
@@ -8,12 +13,10 @@ RUN apk add --no-cache \
 	bluez-deprecated \
 	coreutils \
 	curl \
-	dumb-init
+	dumb-init \
 	gawk \
 	procps
 
-ADD monitor.sh /opt/monitor/
-ADD support/ /opt/monitor/support/
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 
 WORKDIR /opt/monitor
