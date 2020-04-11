@@ -21,4 +21,6 @@ WORKDIR /opt/monitor
 
 ENTRYPOINT [ "/opt/monitor/docker-entrypoint.sh" ]
 
+VOLUME [ "/config" ]
+
 CMD [ "dumb-init", "./monitor.sh", "-r", "-a", "-b", "-tadr", "-D", "/config" ]
