@@ -17,10 +17,8 @@ RUN apk add --no-cache \
 	gawk \
 	procps
 
-ADD docker-entrypoint.sh /docker-entrypoint.sh
-
 WORKDIR /opt/monitor
 
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/opt/monitor/docker-entrypoint.sh" ]
 
 CMD [ "dumb-init", "./monitor.sh", "-r", "-a", "-b", "-tadr", "-D", "/config" ]
