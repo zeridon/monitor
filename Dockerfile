@@ -1,16 +1,16 @@
 FROM eclipse-mosquitto:1.6.9
 
-RUN apk update && \
-    apk add \
+RUN apk add --no-cache \
     	bash \
+	bc \
+	bluez \
 	bluez-btmon \
 	bluez-deprecated \
-	bc \
 	coreutils \
-	bluez \
-	procps \
 	curl \
-	gawk
+	dumb-init
+	gawk \
+	procps
 
 ADD monitor.sh /opt/monitor/
 ADD support/ /opt/monitor/support/
@@ -20,4 +20,4 @@ WORKDIR /opt/monitor
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
-CMD [ "/bin/bash", "./monitor.sh", "-r", "-a", "-b", "-tadr", "-D", "/config" ]
+CMD [ "dumb-init", "./monitor.sh", "-r", "-a", "-b", "-tadr", "-D", "/config" ]
